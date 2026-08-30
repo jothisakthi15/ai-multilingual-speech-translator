@@ -1,0 +1,7 @@
+{
+  "name": "AI Multilingual Speech App",
+  "description": "AI-powered voice recognition, automatic language detection, and context-aware multilingual speech translation with Google Gemini.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

@@ -1,0 +1,8 @@
+streamlit>=1.35.0
+google-genai>=0.1.1
+python-dotenv>=1.0.1
+SpeechRecognition>=3.10.4
+PyAudio>=0.2.14
+gTTS>=2.5.1
+pydub>=0.25.1
+requests>=2.31.0
