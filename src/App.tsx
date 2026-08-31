@@ -4,6 +4,7 @@ import { Sidebar } from "./components/Sidebar";
 import { SpeechInputPanel } from "./components/SpeechInputPanel";
 import { TranslationResults } from "./components/TranslationResults";
 import { ConversationHistory } from "./components/ConversationHistory";
+import { ProjectExplorerModal } from "./components/ProjectExplorerModal";
 import { TranslationResult, TranslationTurn, ALL_SUPPORTED_LANGUAGES } from "./types";
 import { blobToBase64 } from "./utils/audio";
 import { AlertCircle, X } from "lucide-react";
@@ -25,6 +26,7 @@ export default function App() {
   const [history, setHistory] = useState<TranslationTurn[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState<boolean>(false);
 
   // Tamil Pronunciation & Speech Customization
   const [tamilStyle, setTamilStyle] = useState<"spoken" | "formal" | "casual">("spoken");
@@ -236,7 +238,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-slate-200 flex flex-col font-sans selection:bg-blue-500/30 selection:text-white">
       {/* Top Header */}
-      <Header historyCount={history.length} />
+      <Header
+        historyCount={history.length}
+        onOpenProjectExplorer={() => setIsProjectModalOpen(true)}
+      />
 
       {/* Main Body Layout */}
       <div className="flex-1 flex flex-col lg:flex-row w-full max-w-7xl mx-auto overflow-hidden">
@@ -346,6 +351,11 @@ export default function App() {
           </div>
         </div>
       </footer>
+      {/* Project Code & Architecture Modal */}
+      <ProjectExplorerModal
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+      />
     </div>
   );
 }

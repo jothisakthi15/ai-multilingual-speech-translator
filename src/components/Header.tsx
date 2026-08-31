@@ -1,11 +1,12 @@
 import React from "react";
-import { Mic, Languages, Sparkles } from "lucide-react";
+import { Mic, Languages, Sparkles, FolderCode } from "lucide-react";
 
 interface HeaderProps {
   historyCount: number;
+  onOpenProjectExplorer?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ historyCount }) => {
+export const Header: React.FC<HeaderProps> = ({ historyCount, onOpenProjectExplorer }) => {
   return (
     <header className="h-16 border-b border-slate-800 flex items-center justify-between px-4 lg:px-8 bg-[#0F172A]/90 backdrop-blur-md sticky top-0 z-30">
       <div className="flex items-center gap-3">
@@ -23,6 +24,18 @@ export const Header: React.FC<HeaderProps> = ({ historyCount }) => {
       </div>
 
       <div className="flex items-center gap-3">
+        {onOpenProjectExplorer && (
+          <button
+            id="btn-project-explorer"
+            onClick={onOpenProjectExplorer}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 hover:border-blue-500/50 rounded-xl text-xs font-semibold text-blue-400 hover:text-blue-300 transition-all cursor-pointer shadow-sm"
+          >
+            <FolderCode className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Project Source & API</span>
+            <span className="sm:hidden">Code</span>
+          </button>
+        )}
+
         {historyCount > 0 && (
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-800/80 border border-slate-700/60 rounded-full text-xs text-slate-300">
             <Languages className="w-3.5 h-3.5 text-blue-400" />
@@ -42,4 +55,5 @@ export const Header: React.FC<HeaderProps> = ({ historyCount }) => {
     </header>
   );
 };
+
 
