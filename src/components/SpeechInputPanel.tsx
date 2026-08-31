@@ -458,7 +458,7 @@ export const SpeechInputPanel: React.FC<SpeechInputPanelProps> = ({
           <button
             id="btn-microphone-record"
             onClick={toggleRecording}
-            className={`w-full py-6 px-4 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all relative overflow-hidden ${
+            className={`w-full py-5 px-4 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2.5 transition-all relative overflow-hidden ${
               isRecording
                 ? "bg-rose-500/10 border-rose-500/60 text-rose-400 ring-4 ring-rose-500/10"
                 : "bg-blue-600/10 border-blue-500/40 group-hover:border-blue-400 group-hover:bg-blue-600/20"
@@ -477,13 +477,13 @@ export const SpeechInputPanel: React.FC<SpeechInputPanelProps> = ({
             )}
 
             <div
-              className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all ${
+              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
                 isRecording
                   ? "bg-rose-600 text-white shadow-rose-900/60 scale-110 animate-pulse"
                   : "bg-blue-600 text-white shadow-blue-900/50 group-hover:scale-105"
               }`}
             >
-              {isRecording ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7 stroke-[2.5]" />}
+              {isRecording ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6 stroke-[2.5]" />}
             </div>
             <div className="text-center space-y-0.5">
               <span
@@ -491,17 +491,44 @@ export const SpeechInputPanel: React.FC<SpeechInputPanelProps> = ({
                   isRecording ? "text-rose-400" : "text-blue-400"
                 }`}
               >
-                {isRecording ? "Listening Live... Tap to Finish" : "Tap to Speak (Zero Delay)"}
+                {isRecording ? "Recording Speech... Tap or click 'Stop Recording'" : "Tap to Speak (MediaRecorder Audio)"}
               </span>
               <span className="text-[11px] text-slate-400 block">
                 {isRecording
-                  ? autoTranslateOnSpeech
-                    ? "Speaks stream in real-time -> Translates automatically"
-                    : "Real-time speech capture active"
-                  : "Words stream in real-time as you speak"}
+                  ? "Live audio captured directly in browser -> Sent to Gemini 2.5 Flash"
+                  : "Records audio in browser & processes with Gemini 2.5 Flash"}
               </span>
             </div>
           </button>
+
+          {/* Explicit Start Recording & Stop Recording Action Buttons */}
+          <div className="grid grid-cols-2 gap-2.5 mt-2.5">
+            <button
+              id="btn-start-recording"
+              type="button"
+              disabled={isRecording || isLoading}
+              onClick={() => {
+                if (!isRecording) toggleRecording();
+              }}
+              className="flex items-center justify-center gap-1.5 bg-blue-600/90 hover:bg-blue-500 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all shadow-md shadow-blue-900/30"
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span>Start Recording</span>
+            </button>
+
+            <button
+              id="btn-stop-recording"
+              type="button"
+              disabled={!isRecording || isLoading}
+              onClick={() => {
+                if (isRecording) toggleRecording();
+              }}
+              className="flex items-center justify-center gap-1.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all shadow-md shadow-rose-900/30"
+            >
+              <MicOff className="w-3.5 h-3.5" />
+              <span>Stop Recording</span>
+            </button>
+          </div>
 
           {micStatusMsg && (
             <p className="text-xs text-blue-400 text-center mt-2 font-medium animate-pulse">

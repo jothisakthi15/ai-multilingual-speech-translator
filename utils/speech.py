@@ -20,42 +20,17 @@ except ImportError:
     genai = None
 
 
+# NOTE: Backend local microphone capture via PyAudio / sr.Microphone() is disabled
+# for server/cloud environments where hardware microphones are not attached to the backend server.
+# Audio input should be captured directly in the client browser or via audio file upload.
+
 def recognize_speech_from_mic(timeout: int = 5, phrase_time_limit: int = 15) -> Tuple[bool, str]:
     """
-    Captures live audio from the default microphone and converts it to text.
-    
-    Args:
-        timeout: Maximum seconds to wait for speech to start.
-        phrase_time_limit: Maximum seconds for phrase length.
-        
-    Returns:
-        Tuple of (success: bool, text_or_error_message: str)
+    Disabled: Local backend microphone audio capture relying on PyAudio is disabled.
+    Audio is captured on the client side (browser) or via audio file upload.
     """
-    if sr is None:
-        return False, "speech_recognition package is not installed. Please install via requirements.txt."
-        
-    recognizer = sr.Recognizer()
-    recognizer.energy_threshold = 300
-    recognizer.dynamic_energy_threshold = True
-    
-    try:
-        with sr.Microphone() as source:
-            # Adjust for ambient background noise
-            recognizer.adjust_for_ambient_noise(source, duration=0.8)
-            audio = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
-            
-            # Recognize using Google Web Speech API (free default)
-            text = recognizer.recognize_google(audio)
-            return True, text.strip()
-            
-    except sr.WaitTimeoutError:
-        return False, "No speech was detected. Please try speaking into the microphone again."
-    except sr.UnknownValueError:
-        return False, "Speech was unintelligible. Please speak clearly and try again."
-    except sr.RequestError as e:
-        return False, f"Speech recognition service error: {str(e)}"
-    except Exception as e:
-        return False, f"Microphone error: {str(e)}"
+    return False, "Server-side microphone capture is disabled. Please use the 'Audio File' upload tab or client-side voice input."
+
 
 
 def transcribe_audio_bytes(

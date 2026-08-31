@@ -262,6 +262,141 @@ Respond ONLY in JSON:
   }
 });
 
+// Dedicated /api/recognize endpoint (Accepts audio recorded in browser and transcribes exact words via Gemini 2.5 Flash)
+app.post("/api/recognize", async (req, res) => {
+  try {
+    let audioData = req.body.audioData || req.body.audio || req.body.audio_bytes;
+    let mimeType = req.body.mimeType || req.body.mime_type || "audio/webm";
+
+    if (!audioData) {
+      return res.status(400).json({
+        success: false,
+        error: "Audio payload required (audioData base64 string).",
+      });
+    }
+
+    const ai = getGeminiClient();
+    const cleanBase64 = String(audioData).replace(/^data:audio\/\w+;base64,/, "").trim();
+    const cleanMimeType = String(mimeType).split(";")[0].trim() || "audio/webm";
+
+    const promptText彻底 = "Transcribe the exact spoken words from this audio. Return only the transcription.";
+
+    const response = await generateWithRetryAndFallback(
+      ai,
+      "gemini-2.5-flash",
+      ["gemini-3.1-flash-lite", "gemini-flash-latest"],
+      {
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                data: cleanBase64,
+                mimeType: cleanMimeType,
+              },
+            },
+            {
+              text: promptText彻底,
+            },
+          ],
+        },
+      },
+      2
+    );
+
+    const transcript = response.text?.trim() || "";
+
+    return res.json({
+      success: true,
+      transcript: transcript,
+      text: transcript,
+    });
+  } catch (error: any) {
+    console.error("Recognize audio error:", error);
+    let message = error?.message || "Failed to recognize audio with Gemini 2.5 Flash.";
+    return res.status(500).json({ success: false, error: message });
+  }
+});
+
+// Dedicated /api/process-audio endpoint (Accepts audio recorded in browser and processes via Gemini 2.5 Flash)
+app.post("/api/process-audio", async (req, res) => {
+  try {
+    let audioData = req.body.audioData || req.body.audio || req.body.audio_bytes;
+    let mimeType = req.body.mimeType || req.body.mime_type || "audio/webm";
+
+    if (!audioData) {
+      return res.status(400).json({
+        success: false,
+        error: "Audio payload required (audioData base64 string).",
+      });
+    }
+
+    const ai = getGeminiClient();
+    const cleanBase64 = String(audioData).replace(/^data:audio\/\w+;base64,/, "").trim();
+    const cleanMimeType = String(mimeType).split(";")[0].trim() || "audio/webm";
+
+    const promptInstruction = `Listen to this audio recording carefully.
+1. Provide an exact transcription of all spoken words.
+2. Identify the language spoken.
+3. Analyze the key message, tone/sentiment, and concise semantic summary.
+
+Respond in valid JSON format:
+{
+  "transcription": "Exact transcription of the spoken audio",
+  "detected_language": "Detected language (e.g. English, Tamil, Spanish, French)",
+  "analysis": "Concise bullet-point semantic analysis, key topics discussed, and intent/tone",
+  "summary": "One-sentence executive summary of the speech"
+}`;
+
+    const response = await generateWithRetryAndFallback(
+      ai,
+      "gemini-2.5-flash",
+      ["gemini-3.1-flash-lite", "gemini-flash-latest"],
+      {
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                data: cleanBase64,
+                mimeType: cleanMimeType,
+              },
+            },
+            {
+              text: promptInstruction,
+            },
+          ],
+        },
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0.1,
+        },
+      },
+      2
+    );
+
+    const responseText = response.text?.trim() || "{}";
+    let parsed: any;
+    try {
+      parsed = JSON.parse(responseText);
+    } catch {
+      const cleaned = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    }
+
+    return res.json({
+      success: true,
+      transcription: parsed.transcription || "",
+      detected_language: parsed.detected_language || "Auto-Detected",
+      analysis: parsed.analysis || "",
+      summary: parsed.summary || "",
+      raw_text: parsed.transcription || "",
+    });
+  } catch (error: any) {
+    console.error("Process audio error:", error);
+    let message = error?.message || "Failed to process audio with Gemini 2.5 Flash.";
+    return res.status(500).json({ success: false, error: message });
+  }
+});
+
 // Single-Shot Direct Audio-to-Translation endpoint (Zero-delay Speech-to-Multilingual Translation)
 app.post("/api/audio-translate", async (req, res) => {
   try {
